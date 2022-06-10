@@ -17,6 +17,6 @@ Just run jmdg.sh
 It calls functions in getCredsSwift.sh, which get your jamf credentials, test them against your jamf server, get an authorization token, and check and renew the token's expiration. It will optionally save the password in your keychain. After that, all of the actions are presented in a drop down menu.
 
 
- ![Available Actions](/image/choices.png "Available actions")
+ ![Available Actions](/images/choices.png "Available actions")
 
- ![Warning Message](/image/warning.png "Warning. message")
+ ![Warning Message](/images/warning.png "Warning. message")
