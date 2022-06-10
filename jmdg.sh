@@ -157,7 +157,7 @@ Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${
     fi
 
     if [ "$actionentered" == "Wipe Device" ]; then
-      $dialog -2 --title "Warning!" --message "Are you sure you want to wipe all data form $myName?" --icon warning
+      $dialog -2 --title "Warning!" --message "Are you sure you want to wipe all data from $myName?" --icon warning
       if [ "$?" == "0" ]; then
         output=$(curl -k -H "Authorization: Bearer $token" ${jssAddress}/JSSResource/mobiledevicecommands/command/EraseDevice/id/"$myID" -X POST -d "")
         if echo "$output" | grep -q "Not Found"; then
