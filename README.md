@@ -1,7 +1,7 @@
 # JMDG
  JAMF Mobile Device GUI
 
- These scripts allows you to quickly perform actions on a mobile device in Jamf. You can retrieve information about the device, add to or remove from groups, erase the device, enter lost mode, rename, etc. Using this tool is much faster than doing any of these tasks through the web interface. [swiftDialog](https://github.com/bartreardon/swiftDialog) and [jq](https://github.com/bartreardon/swiftDialog) are required.
+ These scripts allows you to quickly perform actions on a mobile device in Jamf. You can retrieve information about the device, add to or remove from groups, erase the device, enter lost mode, rename, etc. Using this tool is much faster than doing any of these tasks through the web interface. [swiftDialog](https://github.com/bartreardon/swiftDialog) and [jq](https://stedolan.github.io/jq/) are required.
 
 
  ## Configuration
