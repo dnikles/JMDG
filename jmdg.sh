@@ -12,7 +12,7 @@ while (true); do
   outputMessage=""
 
   #pop up our interface
-  input=$($dialog -p -h --title "Asset Tag" --message "Please enter the asset tag or serial number" --textfield "Asset Tag",required --json -2)
+  input=$($dialog -o -p -h --title "Asset Tag" --message "Please enter the asset tag or serial number" --textfield "Asset Tag",required --json -2)
   #exit if cancel button
   [ "$?" -eq 2 ] && exit 1
   assettag=$(echo $input | $jq --raw-output '."Asset Tag"')
@@ -25,13 +25,13 @@ while (true); do
 
   #if we can't find the ID try again
   if [ -z "$myName" ]; then
-    $dialog -p -h --title "Oops" --message "Bummer. The asset number $assettag was not found." --icon warning
+    $dialog -o -p -h --title "Oops" --message "Bummer. The asset number $assettag was not found." --icon warning
     break
   fi
 
   while true; do
 
-    input=$($dialog --json -2 --infobuttontext "Change iPad" --quitoninfo -p -o -h --title "Make a selection" --selecttitle "Action" --selectvalues "Update Inventory and Blank Push,\
+    input=$($dialog -o --json -2 --infobuttontext "Change iPad" --quitoninfo -p -h --title "Make a selection" --selecttitle "Action" --selectvalues "Update Inventory and Blank Push,\
 Add to a Group,Remove from a Group,Clear Passcode,Send a Lock Message,Enable Lost Mode,Disable Lost Mode,List Group Membership,List Configuration Profiles,\
 List Installed Apps,Wipe Device,Assign username,Rename iPad,Rename iPad to assigned username,Remove from all groups,\
 Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${outputMessage}")
@@ -56,7 +56,7 @@ Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${
     fi
 
     if [ "$actionentered" == "Enable Lost Mode" ]; then
-      input=$($dialog -h -p --json --title "Enable lost mode" --message "Set lost mode options" --textfield "Message to be sent",required --textfield "Phone Number" --checkbox "Play sound?")
+      input=$($dialog -o -h -p --json --title "Enable lost mode" --message "Set lost mode options" --textfield "Message to be sent",required --textfield "Phone Number" --checkbox "Play sound?")
       lostMessage=$(echo $input | $jq --raw-output '."Message to be sent"')
       lostPhone=$(echo $input | $jq --raw-output '."Phone Number"')
       lostSound=$(echo $input | $jq --raw-output '."Play sound?"')
@@ -66,7 +66,7 @@ Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${
     fi
 
     if [ "$actionentered" == "Assign username" ]; then
-      input=$($dialog -p -h --json --title "Assign a username" --textfield "Username" --message "Enter the username to assign")
+      input=$($dialog -o -p -h --json --title "Assign a username" --textfield "Username" --message "Enter the username to assign")
       newUsername=$(echo $input | $jq --raw-output '.Username')
       apiData="<mobile_device><location><username>$newUsername</username></location></mobile_device>"
       curl -sS -k -i -H "Authorization: Bearer $token" -X PUT -H "Content-Type: text/xml" -d "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>$apiData" ${jssAddress}/JSSResource/mobiledevices/id/"$myID"
@@ -109,7 +109,7 @@ Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${
       fi
     fi
     if [ "$actionentered" == "Send a Lock Message" ]; then
-      input=$($dialog -p -h --json --title "Lock Screen Message" --message "Enter a message" --textfield "Message")
+      input=$($dialog -o -p -h --json --title "Lock Screen Message" --message "Enter a message" --textfield "Message")
       lockmessage=$(echo $input | $jq --raw-output '.Message')
       #lets send the lock message substituting + when there is a " " in the message
       output=$(curl -k -H "Authorization: Bearer $token" ${jssAddress}/JSSResource/mobiledevicecommands/command/DeviceLock/"${lockmessage// /+}"/id/"$myID" -X POST -d "")
@@ -157,7 +157,7 @@ Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${
     fi
 
     if [ "$actionentered" == "Wipe Device" ]; then
-      $dialog -2 --title "Warning!" --message "Are you sure you want to wipe all data from $myName?" --icon warning
+      $dialog -o -2 --title "Warning!" --message "Are you sure you want to wipe all data from $myName?" --icon warning
       if [ "$?" == "0" ]; then
         output=$(curl -k -H "Authorization: Bearer $token" ${jssAddress}/JSSResource/mobiledevicecommands/command/EraseDevice/id/"$myID" -X POST -d "")
         if echo "$output" | grep -q "Not Found"; then
@@ -184,7 +184,7 @@ Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${
     fi
 
     if [ "$actionentered" == "Rename iPad" ]; then
-      input=$($dialog -p -h --json --title "Rename iPad" --textfield "iPad Name" --message "Enter the name to assign")
+      input=$($dialog -o -p -h --json --title "Rename iPad" --textfield "iPad Name" --message "Enter the name to assign")
       myUserName=$(echo $input | $jq --raw-output '."iPad Name"')
       apiData="<mobile_device><general><display_name>$myUserName</display_name><device_name>$myUserName</device_name><name>$myUserName</name></general></mobile_device>"
       output=$(curl -sS -k -i -H "Authorization: Bearer $token" -X PUT -H "Content-Type: text/xml" -d "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>$apiData" ${jssAddress}/JSSResource/mobiledevices/id/"$myID")
@@ -215,7 +215,7 @@ Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${
     fi
 
     if [ "$actionentered" == "Update Asset Number" ]; then
-      input=$($dialog -p -h --json --title "Asset Tag" --textfield "Asset number" --message "Enter the new asset number")
+      input=$($dialog -o -p -h --json --title "Asset Tag" --textfield "Asset number" --message "Enter the new asset number")
       newasset=$(echo $input | $jq --raw-output '."Asset number"')
       #set asset tag
       apiData="<mobile_device><general><asset_tag>$newasset</asset_tag></general></mobile_device>"
@@ -235,7 +235,7 @@ Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${
         groupName=$(echo $allGroups | $jq --raw-output --argjson id ${i} '.mobile_device_groups[]|select(.id==$id).name')
         conftemp=$conftemp",$groupName"
       done
-      input=$($dialog -2 -p -h --json --title "Add to Group" --message "Select the group" --selecttitle "Group Name" --selectvalues "$conftemp")
+      input=$($dialog -o -2 -p -h --json --title "Add to Group" --message "Select the group" --selecttitle "Group Name" --selectvalues "$conftemp")
       [ "$?" -eq 2 ] && exit 1
       selectedGroup=$(echo $input | $jq --raw-output '.SelectedOption')
       groupNumber=$(echo $allGroups | $jq --arg name "$selectedGroup" '.mobile_device_groups[]|select(.name==$name).id')
@@ -259,7 +259,7 @@ Update Asset Number,Shutdown Device,Restart Device,Open JAMF page" --message "${
         conftemp=$conftemp",$i"
       done
       IFS="$oldIFS"
-      input=$($dialog -2 -p -h --json --title "Remove from Group" --message "Select the group" --selecttitle "Group Name" --selectvalues "$conftemp")
+      input=$($dialog -o -2 -p -h --json --title "Remove from Group" --message "Select the group" --selecttitle "Group Name" --selectvalues "$conftemp")
       [ "$?" -eq 2 ] && exit 1
       selectedGroup=$(echo $input | $jq --raw-output '.SelectedOption')
       groupNumber=$(echo $myGroups | $jq --arg name "$selectedGroup" 'select(.name==$name).id')

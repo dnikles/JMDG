@@ -9,7 +9,7 @@ getCreds() {
 		#If you want to hardcode the password, uncomment the following line and comment out the next 5 lines.
 		#jssAPIPassword="enter password here"
     if ! jssAPIPassword=$(security find-generic-password -a ${jssAPIUsername} -s jamfscripts -w); then
-      input=$($dialog -p -h --title "JAMF password" --message "Please enter the JAMF password for ${jssAPIUsername}" --textfield Password,secure,required --json --checkbox "Save Password")
+      input=$($dialog -o -p -h --title "JAMF password" --message "Please enter the JAMF password for ${jssAPIUsername}" --textfield Password,secure,required --json --checkbox "Save Password")
       jssAPIPassword=$(echo $input | $jq --raw-output .Password)
       savePW=$(echo $input | $jq '."Save Password"')
     fi
@@ -17,7 +17,7 @@ getCreds() {
     myOutput=$(curl -H "Accept: application/json" -su ${jssAPIUsername}:"$jssAPIPassword" -X POST ${jssAddress}/api/v1/auth/token)
 
     if echo "$myOutput" | grep -q "errors"; then
-      $dialog --title "Wrong password" --message "The password is incorrect" --icon warning
+      $dialog -o --title "Wrong password" --message "The password is incorrect" --icon warning
       security delete-generic-password -a ${jssAPIUsername} -s jamfscripts
     else
       if [ $savePW == "true" ]; then
